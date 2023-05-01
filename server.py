@@ -5,9 +5,8 @@ import bottle
 import api
 import config
 
-def render_user(result):
+def render_user(user):
     html = ''
-    user = result['core']['user_results']['result']['legacy']
     html += f"<a href='/{user['screen_name']}'>"
     html += f"<img src='{user['profile_image_url_https']}'>"
     html += '@' + user['screen_name']
@@ -21,9 +20,9 @@ def render_tweet(content):
     result = content['itemContent']['tweet_results']['result']
     tweet = result['legacy']
     html += f"<a href='/{result['core']['user_results']['result']['legacy']['screen_name']}/status/{tweet['id_str']}'><p>{tweet['created_at']}</p></a>"
-    html += render_user(result)
+    html += render_user(result['core']['user_results']['result']['legacy'])
     if 'retweeted_status_result' in tweet:
-        html += render_user(tweet['retweeted_status_result']['result'])
+        html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
         text = tweet['retweeted_status_result']['result']['legacy']['full_text']
     else:
         text = tweet['full_text']
@@ -68,26 +67,30 @@ def render_instruction(entry):
     return html
 
 def render_instructions(timeline):
-    html = '<div style="margin:auto;width:50%">'
+    html = ''
     for instruction in timeline['instructions']:
         if 'entries' in instruction:
             for entry in instruction['entries']:
                 html += render_instruction(entry)
         if 'entry' in instruction:
             html += render_instruction(instruction['entry'])
-    html += '</div>'
     return html
 
 def render_user_header(username):
-    html = ''
+    html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     user = api.get_user(username)
-    html += '<h1>' + user['data']['user']['result']['legacy']['name'] + '</h1>'
-    html += '<p>' + user['data']['user']['result']['legacy']['description'] + '</p>'
+    user = user['data']['user']['result']['legacy']
+    html += render_user(user)
+#    html += '<h1>' + user['data']['user']['result']['legacy']['name'] + '</h1>'
+    html += '<p>' + user['description'] + '</p>'
     html += f'<ul><li><a href="/{username}">Home</a></li><li><a href="/{username}/favorites">Likes</a></li></ul>'
+    html += '</div>'
     return html
 
 def render_top():
-    return '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}</style>'
+    html = '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}</style>'
+    html += '<div style="margin:auto;width:50%">'
+    return html
 
 
 @bottle.get('/<username>')
