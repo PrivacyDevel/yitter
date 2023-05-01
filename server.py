@@ -31,7 +31,7 @@ def render_tweet(content):
     try:
         for media in tweet['entities']['media']:
             url = media['media_url_https']
-            html += '<img src="' + url + '" style="max-height:512px">'
+            html += f'<a href="{url}"><img src="{url}" style="max-height:512px"></a>'
     except KeyError as e:
         print(e)
     
@@ -80,8 +80,8 @@ def render_user_header(username):
     html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     user = api.get_user(username)
     user = user['data']['user']['result']['legacy']
+    html += f"<title>{user['name']} (@{user['screen_name']}) - yitter</title>"
     html += render_user(user)
-#    html += '<h1>' + user['data']['user']['result']['legacy']['name'] + '</h1>'
     html += '<p>' + user['description'] + '</p>'
     html += f'<ul><li><a href="/{username}">Home</a></li><li><a href="/{username}/favorites">Likes</a></li></ul>'
     html += '</div>'
@@ -89,7 +89,13 @@ def render_user_header(username):
 
 def render_top():
     html = '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}</style>'
+    html += '<link rel="icon" href="/static/head.webp">'
     html += '<div style="margin:auto;width:50%">'
+    html += '<div style="height:64px;display:flex">'
+    html += '<img src="/static/head.webp" style="height:64px;float:left">'
+    html += '<h1 style="display:inline;color:darkgreen;margin:auto">yitter</h1>'
+    html += '<img src="/static/head.webp" style="height:64px;float:right;transform:scaleX(-1);">'
+    html += '</div>'
     return html
 
 
@@ -115,10 +121,14 @@ def favorites(username):
 @bottle.get('/<username>/status/<tweet_id>')
 def tweet(username, tweet_id):
     html = ''
+    html += '<title>yitter</title>'
     html += render_top()
     tweet = api.get_tweet(tweet_id, username, bottle.request.params.get('cursor'))
     html += render_instructions(tweet['data']['threaded_conversation_with_injections_v2'])
     return html
 
+@bottle.get('/static/<file>')
+def static(file):
+    return bottle.static_file(file, 'public')
 
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)
