@@ -52,3 +52,12 @@ def get_user_tweets(username, cursor=None):
         request_func = request_as_guest
     return request_func(**api_graph.user_tweets(get_user_id(username), cursor)).json()
 
+@redis_decorator.cache(ttl_secs=60*60)
+def get_tweet(tweet_id, username):
+    user = get_user(username)
+    if user['data']['user']['result']['legacy']['possibly_sensitive']:
+        request_func = request_as_user
+    else:
+        request_func = request_as_guest
+    return request_func(**api_graph.tweet_detail(tweet_id)).json()
+

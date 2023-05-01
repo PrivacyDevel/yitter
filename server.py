@@ -19,8 +19,9 @@ def render_user(result):
 def render_tweet(content):
     html = '<div>'
     result = content['itemContent']['tweet_results']['result']
-    html += render_user(result)
     tweet = result['legacy']
+    html += f"<a href='/{result['core']['user_results']['result']['legacy']['screen_name']}/status/{tweet['id_str']}'><p>{tweet['created_at']}</p></a>"
+    html += render_user(result)
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result'])
         text = tweet['retweeted_status_result']['result']['legacy']['full_text']
@@ -40,13 +41,19 @@ def render_tweet(content):
     
     return html
 
+def render_load_more(content):
+    return f"<a href='?cursor={content['value']}'>load more</a>"
+
 
 def render_instruction(entry):
     html = ''
     content = entry['content']
     if 'itemContent' in content:
-        html += render_tweet(content)
-
+        itemContent = content['itemContent']
+        if 'tweet_results' in itemContent:
+            html += render_tweet(content)
+        else:
+            html += render_load_more(itemContent)
     if 'items' in content:
         for item in content['items']:
             try:
@@ -54,13 +61,13 @@ def render_instruction(entry):
             except KeyError as e:
                 print(e)
     if 'value' in content:
-        html += f"<a href='?cursor={content['value']}'>load more</a>"
+        html += render_load_more(content)
 
     return html
 
-def render_timeline(timeline):
+def render_instructions(timeline):
     html = ''
-    for instruction in timeline['timeline']['instructions']:
+    for instruction in timeline['instructions']:
         if 'entries' in instruction:
             for entry in instruction['entries']:
                 html += render_instruction(entry)
@@ -82,7 +89,7 @@ def render_user_header(username):
 def user(username):
     html = render_user_header(username)
     tweets = api.get_user_tweets(username, bottle.request.params.get('cursor'))
-    html += render_timeline(tweets['data']['user']['result']['timeline_v2'])
+    html += render_instructions(tweets['data']['user']['result']['timeline_v2']['timeline'])
     return html
 
 
@@ -90,7 +97,15 @@ def user(username):
 def favorites(username):
     html = render_user_header(username)
     tweets = api.get_likes(username)
-    html += render_timeline(tweets['data']['user']['result']['timeline'])
+    html += render_instructions(tweets['data']['user']['result']['timeline']['timeline'])
     return html
+
+@bottle.get('/<username>/status/<tweet_id>')
+def tweet(username, tweet_id):
+    html = ''
+    tweet = api.get_tweet(tweet_id, username)
+    html += render_instructions(tweet['data']['threaded_conversation_with_injections_v2'])
+    return html
+
 
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)

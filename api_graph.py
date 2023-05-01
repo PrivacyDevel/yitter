@@ -81,3 +81,25 @@ def user_tweets(user_id, cursor=None, count=40):
 
     return {"url": base_url + "CdG2Vuc1v6F5JyEngGpxVw/UserTweets", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
     
+def tweet_detail(tweet_id):
+
+    variables = {
+            "focalTweetId": tweet_id,
+            "with_rux_injections": False,
+            "includePromotedContent": True,
+            "withCommunity": True,
+            "withQuickPromoteEligibilityTweetFields": True,
+            "withBirdwatchNotes": False,
+            "withVoice": True,
+            "withV2Timeline": True
+    }
+
+    features = gen_features_base_ext() | {
+        "longform_notetweets_rich_text_read_enabled": True
+    }
+
+    headers = {
+        "content-type": "application/json",
+    }
+
+    return {"url": base_url + "BbCrSoXIR7z93lLCVFlQ2Q/TweetDetail", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
