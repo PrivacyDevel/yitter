@@ -40,8 +40,8 @@ def get_user_id(username):
     return user['data']['user']['result']['rest_id']
 
 @redis_decorator.cache(ttl_secs=60*60)
-def get_likes(username):
-    return request_as_user(**api_graph.likes(get_user_id(username))).json()
+def get_likes(username, cursor=None):
+    return request_as_user(**api_graph.likes(get_user_id(username), cursor)).json()
 
 @redis_decorator.cache(ttl_secs=60*60)
 def get_user_tweets(username, cursor=None):
@@ -53,11 +53,11 @@ def get_user_tweets(username, cursor=None):
     return request_func(**api_graph.user_tweets(get_user_id(username), cursor)).json()
 
 @redis_decorator.cache(ttl_secs=60*60)
-def get_tweet(tweet_id, username):
+def get_tweet(tweet_id, username, cursor=None):
     user = get_user(username)
     if user['data']['user']['result']['legacy']['possibly_sensitive']:
         request_func = request_as_user
     else:
         request_func = request_as_guest
-    return request_func(**api_graph.tweet_detail(tweet_id)).json()
+    return request_func(**api_graph.tweet_detail(tweet_id, cursor)).json()
 

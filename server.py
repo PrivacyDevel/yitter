@@ -25,10 +25,9 @@ def render_tweet(content):
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result'])
         text = tweet['retweeted_status_result']['result']['legacy']['full_text']
-        html += 'RT: <p>' + text + '</p>'
     else:
         text = tweet['full_text']
-        html += 'Tweet: <p>' + text + '</p>'
+    html += '<p>' + text + '</p>'
 
     try:
         for media in tweet['entities']['media']:
@@ -53,7 +52,10 @@ def render_instruction(entry):
         if 'tweet_results' in itemContent:
             html += render_tweet(content)
         else:
-            html += render_load_more(itemContent)
+            try:
+                html += render_load_more(itemContent)
+            except KeyError as e:
+                print(e)
     if 'items' in content:
         for item in content['items']:
             try:
@@ -103,7 +105,7 @@ def favorites(username):
     html = ''
     html += render_top()
     html += render_user_header(username)
-    tweets = api.get_likes(username)
+    tweets = api.get_likes(username, bottle.request.params.get('cursor'))
     html += render_instructions(tweets['data']['user']['result']['timeline']['timeline'])
     return html
 
@@ -111,7 +113,7 @@ def favorites(username):
 def tweet(username, tweet_id):
     html = ''
     html += render_top()
-    tweet = api.get_tweet(tweet_id, username)
+    tweet = api.get_tweet(tweet_id, username, bottle.request.params.get('cursor'))
     html += render_instructions(tweet['data']['threaded_conversation_with_injections_v2'])
     return html
 

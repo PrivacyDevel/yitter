@@ -36,7 +36,7 @@ def user_by_screen_name(username):
 
     return {"url": base_url + "k26ASEiniqy4eXMdknTSoQ/UserByScreenName", "params": {"variables": json.dumps(variables), "features": json.dumps(gen_features_base())}}
 
-def likes(user_id, count=20):
+def likes(user_id, cursor=None, count=20):
 
     variables = {
         "userId": user_id,
@@ -46,6 +46,9 @@ def likes(user_id, count=20):
         "withReactionsMetadata": False,
         "withReactionsPerspective": False,
     }
+
+    if cursor is not None:
+        variables['cursor'] = cursor
     
     features = gen_features_base_ext() | {
         "longform_notetweets_richtext_consumption_enabled": False,
@@ -81,7 +84,7 @@ def user_tweets(user_id, cursor=None, count=40):
 
     return {"url": base_url + "CdG2Vuc1v6F5JyEngGpxVw/UserTweets", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
     
-def tweet_detail(tweet_id):
+def tweet_detail(tweet_id, cursor=None):
 
     variables = {
             "focalTweetId": tweet_id,
@@ -93,6 +96,9 @@ def tweet_detail(tweet_id):
             "withVoice": True,
             "withV2Timeline": True
     }
+
+    if cursor is not None:
+        variables['cursor'] = cursor
 
     features = gen_features_base_ext() | {
         "longform_notetweets_rich_text_read_enabled": True
