@@ -94,7 +94,7 @@ def render_top():
     html += '</div>'
     html += '<div style="height:64px;display:flex">'
     html += '<img src="/static/head.webp" style="height:64px;float:left">'
-    html += '<form style="margin:auto;display:block"><input name="q"><input type="submit" value="search"></form>'
+    html += '<form action="/search" style="margin:auto;display:block"><input name="q"><input type="submit" value="search"></form>'
     html += '<img src="/static/head.webp" style="height:64px;float:right;transform:scaleX(-1);">'
     html += '</div>'
     return html

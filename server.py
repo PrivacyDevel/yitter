@@ -51,4 +51,13 @@ def search():
         html += html_renderer.render_tweet(tweet, search['globalObjects']['users'][tweet['user_id_str']])
     return html
 
+@bottle.get('/')
+def landing():
+    html = ''
+    html += '<title>yitter</title>'
+    html += '<div style="height:100%">'
+    html += '<div style="position:relative;top:50%;transform:translateY(-50%)">'
+    html += html_renderer.render_top()
+    return html
+
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)
