@@ -1,0 +1,11 @@
+[Service]
+User=yitter
+Group=yitter
+WorkingDirectory=/home/yitter/yitter
+ExecStart=/home/yitter/yitter/server.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+
