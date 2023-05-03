@@ -7,9 +7,12 @@ def render_user(user):
     html += '</a>'
     return html
 
-def render_tweet(tweet, user):
+def render_tweet(tweet, user, views=None):
+
+    tweet_link = f"/{user['screen_name']}/status/{tweet['id_str']}"
+
     html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
-    html += f"<a href='/{user['screen_name']}/status/{tweet['id_str']}'><p>{tweet['created_at']}</p></a>"
+    html += f"<a href='{tweet_link}'><p>{tweet['created_at']}</p></a>"
     html += render_user(user)
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
@@ -26,7 +29,21 @@ def render_tweet(tweet, user):
             html += f'<a href="{url}"><img src="{url}" style="max-height:512px"></a>'
     except KeyError as e:
         print(e)
-    
+
+    html += f"<a href='{tweet_link}' style='display:flex;margin-top:10px;align-items:center;transform:translateX(-10px)'>"
+
+    try:
+        html += f"<img src='/static/message-reply.svg' class=icon>{tweet['reply_count']}"
+    except KeyError as e:
+        pass
+
+    html += f"<img src='/static/repeat-variant.svg' class=icon>{tweet['retweet_count']}"
+    html += f"<img src='/static/thumb-up.svg' class=icon>{tweet['favorite_count']}"
+
+    if views is not None:
+        html += f"<img src='/static/eye-outline.svg' class=icon>{views}"
+
+    html += '</a>'
     html += '</div>'
     
     return html
@@ -36,7 +53,14 @@ def render_graph_tweet(content):
     result = content['itemContent']['tweet_results']['result']
     tweet = result['legacy']
     user = result['core']['user_results']['result']['legacy']
-    return render_tweet(tweet, user)
+    
+    views = None
+    try:
+        views = result['views']['count']
+    except KeyError as e:
+        print(e)
+
+    return render_tweet(tweet, user, views)
 
 def render_load_more(content):
     return f"<a href='?cursor={content['value']}'>load more</a>"
@@ -86,7 +110,7 @@ def render_user_header(user):
     return html
 
 def render_top():
-    html = '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}</style>'
+    html = '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}</style>'
     html += '<link rel="icon" href="/static/head.webp">'
     html += '<div style="margin:auto;width:50%">'
     html += '<div style="display:flex">'
