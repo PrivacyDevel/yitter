@@ -11,7 +11,7 @@ def render_tweet(tweet, user, views=None):
 
     tweet_link = f"/{user['screen_name']}/status/{tweet['id_str']}"
 
-    html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
+    html = '<div style="background:#111111;padding:20px;margin-bottom:10px;padding-top:5px">'
     html += f"<a href='{tweet_link}'><p>{tweet['created_at']}</p></a>"
     html += render_user(user)
     if 'retweeted_status_result' in tweet:
@@ -26,7 +26,7 @@ def render_tweet(tweet, user, views=None):
     try:
         for media in tweet['entities']['media']:
             url = media['media_url_https']
-            html += f'<a href="{url}"><img src="{url}" style="max-height:512px"></a>'
+            html += f'<a href="{url}"><img src="{url}" style="max-height:512px;max-width:100%"></a>'
     except KeyError as e:
         print(e)
 
@@ -104,6 +104,7 @@ def render_user_header(user):
     username = user['screen_name']
     html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     html += f"<title>{user['name']} (@{username}) - yitter</title>"
+    html += render_user(user)
     html += '<p>' + user['description'] + '</p>'
     html += f'<ul><li><a href="/{username}">Home</a></li><li><a href="/{username}/favorites">Likes</a></li></ul>'
     html += '</div>'
