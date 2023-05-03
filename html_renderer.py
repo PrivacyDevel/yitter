@@ -1,3 +1,5 @@
+import traceback
+
 def render_user(user):
     html = ''
     html += f"<a href='/{user['screen_name']}'>"
@@ -16,7 +18,8 @@ def render_tweet(tweet, user, views=None):
     html += render_user(user)
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
-        text = tweet['retweeted_status_result']['result']['legacy']['full_text']
+        tweet = tweet['retweeted_status_result']['result']['legacy']
+        text = tweet['full_text']
     elif 'full_text' in tweet:
         text = tweet['full_text']
     else:
@@ -24,17 +27,24 @@ def render_tweet(tweet, user, views=None):
     html += '<p>' + text + '</p>'
 
     try:
-        for media in tweet['entities']['media']:
+        for media in tweet['extended_entities']['media']:
             url = media['media_url_https']
-            html += f'<a href="{url}"><img src="{url}" style="max-height:512px;max-width:100%"></a>'
-    except KeyError as e:
-        print(e)
+            if media['type'] == 'video':
+                html += f"<video poster='{url}' controls style='max-height:512px;max-width:100%'>"
+                for variant in media['video_info']['variants']:
+                    html += f"<source src='{variant['url']}' type='{variant['content_type']}'>"
+                html += '</video>'
+            else:
+                html += f'<a href="{url}"><img src="{url}" style="max-height:512px;max-width:100%"></a>'
+
+    except KeyError:
+        pass
 
     html += f"<a href='{tweet_link}' style='display:flex;margin-top:10px;align-items:center;transform:translateX(-10px)'>"
 
     try:
         html += f"<img src='/static/message-reply.svg' class=icon>{tweet['reply_count']}"
-    except KeyError as e:
+    except KeyError:
         pass
 
     html += f"<img src='/static/repeat-variant.svg' class=icon>{tweet['retweet_count']}"
@@ -57,8 +67,8 @@ def render_graph_tweet(content):
     views = None
     try:
         views = result['views']['count']
-    except KeyError as e:
-        print(e)
+    except KeyError:
+        pass
 
     return render_tweet(tweet, user, views)
 
@@ -76,14 +86,14 @@ def render_instruction(entry):
         else:
             try:
                 html += render_load_more(itemContent)
-            except KeyError as e:
-                print(e)
+            except KeyError:
+                traceback.print_exc()
     if 'items' in content:
         for item in content['items']:
             try:
                 html += render_graph_tweet(item['item'])
-            except KeyError as e:
-                print(e)
+            except KeyError:
+                traceback.print_exc()
     if 'value' in content:
         html += render_load_more(content)
 
