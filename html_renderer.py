@@ -89,9 +89,12 @@ def render_top():
     html = '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}</style>'
     html += '<link rel="icon" href="/static/head.webp">'
     html += '<div style="margin:auto;width:50%">'
+    html += '<div style="display:flex">'
+    html += '<h1 style="margin:auto;display:block;color:darkgreen">yitter</h1>'
+    html += '</div>'
     html += '<div style="height:64px;display:flex">'
     html += '<img src="/static/head.webp" style="height:64px;float:left">'
-    html += '<h1 style="display:inline;color:darkgreen;margin:auto">yitter</h1>'
+    html += '<form style="margin:auto;display:block"><input name="q"><input type="submit" value="search"></form>'
     html += '<img src="/static/head.webp" style="height:64px;float:right;transform:scaleX(-1);">'
     html += '</div>'
     return html
