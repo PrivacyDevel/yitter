@@ -109,3 +109,4 @@ def tweet_detail(tweet_id, cursor=None):
     }
 
     return {"url": base_url + "BbCrSoXIR7z93lLCVFlQ2Q/TweetDetail", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
+

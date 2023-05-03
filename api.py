@@ -1,7 +1,8 @@
-import requests
+import httpx
 
 import api_common
 import api_1_1
+import api_2
 import api_graph
 import config
 import redis_decorator
@@ -10,7 +11,7 @@ import redis_decorator
 def request(**kwargs):
     kwargs['headers'] = kwargs.get('headers', {}) | api_common.gen_headers_base()
     kwargs['method'] = kwargs.get('method', 'get')
-    resp = requests.request(**kwargs)
+    resp = httpx.request(**kwargs)
     resp.raise_for_status()
     return resp
 
@@ -23,7 +24,7 @@ def request_as_guest(**kwargs):
 
 def request_as_user(**kwargs):
     #TODO do user rotation
-    kwargs['headers'] = kwargs.get('headers', {}) | api_common.gen_authenticated_headers_base(config.auth[1])
+    kwargs['headers'] = kwargs.get('headers', {}) | api_common.gen_authenticated_headers_base(config.auth[0])
     return request(**kwargs)
 
 
@@ -61,3 +62,6 @@ def get_tweet(tweet_id, username, cursor=None):
         request_func = request_as_guest
     return request_func(**api_graph.tweet_detail(tweet_id, cursor)).json()
 
+@redis_decorator.cache(ttl_secs=60*60)
+def search(query):
+    return request_as_user(**api_2.search(query)).json()

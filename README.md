@@ -1,2 +1,2 @@
 dependencies:
-python3-{requests,redis,bottle,waitress}
+python3-{httpx,redis,bottle,waitress}

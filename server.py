@@ -14,18 +14,17 @@ def render_user(user):
     html += '</a>'
     return html
 
-
-def render_tweet(content):
+def render_tweet(tweet, user):
     html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
-    result = content['itemContent']['tweet_results']['result']
-    tweet = result['legacy']
-    html += f"<a href='/{result['core']['user_results']['result']['legacy']['screen_name']}/status/{tweet['id_str']}'><p>{tweet['created_at']}</p></a>"
-    html += render_user(result['core']['user_results']['result']['legacy'])
+    html += f"<a href='/{user['screen_name']}/status/{tweet['id_str']}'><p>{tweet['created_at']}</p></a>"
+    html += render_user(user)
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
         text = tweet['retweeted_status_result']['result']['legacy']['full_text']
-    else:
+    elif 'full_text' in tweet:
         text = tweet['full_text']
+    else:
+        text = tweet['text']
     html += '<p>' + text + '</p>'
 
     try:
@@ -39,6 +38,13 @@ def render_tweet(content):
     
     return html
 
+
+def render_graph_tweet(content):
+    result = content['itemContent']['tweet_results']['result']
+    tweet = result['legacy']
+    user = result['core']['user_results']['result']['legacy']
+    return render_tweet(tweet, user)
+
 def render_load_more(content):
     return f"<a href='?cursor={content['value']}'>load more</a>"
 
@@ -49,7 +55,7 @@ def render_instruction(entry):
     if 'itemContent' in content:
         itemContent = content['itemContent']
         if 'tweet_results' in itemContent:
-            html += render_tweet(content)
+            html += render_graph_tweet(content)
         else:
             try:
                 html += render_load_more(itemContent)
@@ -58,7 +64,7 @@ def render_instruction(entry):
     if 'items' in content:
         for item in content['items']:
             try:
-                html += render_tweet(item['item'])
+                html += render_graph_tweet(item['item'])
             except KeyError as e:
                 print(e)
     if 'value' in content:
@@ -130,5 +136,14 @@ def tweet(username, tweet_id):
 @bottle.get('/static/<file>')
 def static(file):
     return bottle.static_file(file, 'public')
+
+@bottle.get('/search')
+def search():
+    html = ''
+    html += render_top()
+    search = api.search(bottle.request.params.get('q'))
+    for tweet in search['globalObjects']['tweets'].values():
+        html += render_tweet(tweet, search['globalObjects']['users'][tweet['user_id_str']])
+    return html
 
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)
