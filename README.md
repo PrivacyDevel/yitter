@@ -12,13 +12,13 @@ useradd -ms /bin/bash yitter
 su - yitter
 git clone https://codeberg.org/PrivacyDev/yitter
 cp yitter/config.py{.example,}
+chmod 600 yitter/config.py
 exit
 cp /home/yitter/yitter/yitter.service /etc/systemd/system/
 chown root:root /etc/systemd/system/yitter.service
 ```
 Adjust the following files as needed:
 - /home/yitter/yitter/config.py
-- /etc/systemd/system/yitter.service
 
 ```
 systemctl daemon-reload
