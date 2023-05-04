@@ -11,12 +11,17 @@ def render_user(user):
     html += '</a>'
     return html
 
-def render_tweet(tweet, user, views=None):
+def render_tweet(tweet, user, views=None, is_pinned=False):
 
     tweet_link = f"/{user['screen_name']}/status/{tweet['id_str']}"
 
     html = '<div style="background:#111111;padding:20px;margin-bottom:10px;padding-top:5px">'
-    html += f"<a href='{tweet_link}'><p>{tweet['created_at']}</p></a>"
+    html += f"<a href='{tweet_link}'>"
+
+    if is_pinned:
+        html += '<p class=icon-container><img src="/static/pin.svg" class=icon>Pinned Tweet</p>'
+
+    html += f"<p>{tweet['created_at']}</p></a>"
     html += render_user(user)
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
@@ -42,7 +47,8 @@ def render_tweet(tweet, user, views=None):
     except KeyError:
         pass
 
-    html += f"<a href='{tweet_link}' style='display:flex;margin-top:10px;align-items:center;transform:translateX(-10px)'>"
+
+    html += f"<a href='{tweet_link}' class=icon-container>"
 
     try:
         html += f"<img src='/static/message-reply.svg' class=icon>{tweet['reply_count']}"
@@ -57,11 +63,11 @@ def render_tweet(tweet, user, views=None):
 
     html += '</a>'
     html += '</div>'
-    
+
     return html
 
 
-def render_graph_tweet(content):
+def render_graph_tweet(content, is_pinned):
     result = content['itemContent']['tweet_results']['result']
     tweet = result['legacy']
     user = result['core']['user_results']['result']['legacy']
@@ -72,19 +78,19 @@ def render_graph_tweet(content):
     except KeyError:
         pass
 
-    return render_tweet(tweet, user, views)
+    return render_tweet(tweet, user, views, is_pinned)
 
 def render_load_more(content):
     return f"<a href='?cursor={content['value']}'>load more</a>"
 
 
-def render_instruction(entry):
+def render_instruction(entry, is_pinned=False):
     html = ''
     content = entry['content']
     if 'itemContent' in content:
         itemContent = content['itemContent']
         if 'tweet_results' in itemContent:
-            html += render_graph_tweet(content)
+            html += render_graph_tweet(content, is_pinned)
         else:
             try:
                 html += render_load_more(itemContent)
@@ -95,7 +101,7 @@ def render_instruction(entry):
         html += f"<div style='position:absolute;height:100%;width:5px;background:{accent_color}'></div>"
         for item in content['items']:
             try:
-                html += render_graph_tweet(item['item'])
+                html += render_graph_tweet(item['item'], is_pinned)
             except KeyError:
                 traceback.print_exc()
         html += '</div>'
@@ -106,11 +112,16 @@ def render_instruction(entry):
 
 def render_instructions(timeline):
     html = ''
+
+    for instruction in timeline['instructions']:
+        if 'entry' in instruction and instruction['type'] == 'TimelinePinEntry':
+            html += render_instruction(instruction['entry'], True)
+
     for instruction in timeline['instructions']:
         if 'entries' in instruction:
             for entry in instruction['entries']:
                 html += render_instruction(entry)
-        if 'entry' in instruction:
+        if 'entry' in instruction and instruction['type'] != 'TimelinePinEntry':
             html += render_instruction(instruction['entry'])
     return html
 
@@ -121,12 +132,12 @@ def render_user_header(user):
     html += f"<title>{user['name']} (@{username}) - yitter</title>"
     html += render_user(user)
     html += '<p>' + user['description'] + '</p>'
-    html += f'<ul><li><a href="/{username}">Home</a></li><li><a href="/{username}/favorites">Likes</a></li></ul>'
+    html += f'<a href="/{username}">Home</a> <a href="/{username}/favorites">Likes</a>'
     html += '</div>'
     return html
 
 def render_top():
-    html = '<style>body{background:black;color:white}a{color:' + accent_color + ';text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}</style>'
+    html = '<style>body{background:black;color:white}a{color:' + accent_color + ';text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}.icon-container{display:flex;margin-top:10px;align-items:center;transform:translateX(-10px)}</style>'
     html += '<link rel="icon" href="/static/head.webp">'
     html += '<div style="margin:auto;width:50%">'
     html += '<div style="display:flex">'
