@@ -36,8 +36,13 @@ def render_tweet(tweet, user, views=None, is_pinned=False):
     try:
         for media in tweet['extended_entities']['media']:
             url = media['media_url_https']
-            if media['type'] == 'video':
-                html += f"<video poster='{url}' controls style='max-height:512px;max-width:100%'>"
+            if media['type'] in ('video', 'animated_gif'):
+                html += f"<video poster='{url}' style='max-height:512px;max-width:100%' "
+                if media['type'] == 'video':
+                    html += 'controls'
+                else:
+                    html += 'autoplay loop'
+                html += '>'
                 for variant in media['video_info']['variants']:
                     html += f"<source src='{variant['url']}' type='{variant['content_type']}'>"
                 html += '</video>'
