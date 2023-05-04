@@ -1,5 +1,7 @@
 import traceback
 
+accent_color = 'darkgreen'
+
 def render_user(user):
     html = ''
     html += f"<a href='/{user['screen_name']}'>"
@@ -89,11 +91,14 @@ def render_instruction(entry):
             except KeyError:
                 traceback.print_exc()
     if 'items' in content:
+        html += '<div style="position:relative">'
+        html += f"<div style='position:absolute;height:100%;width:5px;background:{accent_color}'></div>"
         for item in content['items']:
             try:
                 html += render_graph_tweet(item['item'])
             except KeyError:
                 traceback.print_exc()
+        html += '</div>'
     if 'value' in content:
         html += render_load_more(content)
 
@@ -121,11 +126,11 @@ def render_user_header(user):
     return html
 
 def render_top():
-    html = '<style>body{background:black;color:white}a{color:darkgreen;text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}</style>'
+    html = '<style>body{background:black;color:white}a{color:' + accent_color + ';text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}</style>'
     html += '<link rel="icon" href="/static/head.webp">'
     html += '<div style="margin:auto;width:50%">'
     html += '<div style="display:flex">'
-    html += '<h1 style="margin:auto;display:block;color:darkgreen">yitter</h1>'
+    html += f"<h1 style='margin:auto;display:block;color:{accent_color}'>yitter</h1>"
     html += '</div>'
     html += '<div style="height:64px;display:flex">'
     html += '<img src="/static/head.webp" style="height:64px;float:left">'
