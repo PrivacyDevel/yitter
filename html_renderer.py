@@ -2,6 +2,13 @@ import traceback
 
 accent_color = 'darkgreen'
 
+
+def extend_urls(text, urls_container):
+    for url in urls_container['urls']:
+        text = text.replace(url['url'], f"<a href='{url['expanded_url']}'>{url['expanded_url']}</a>")
+    return text
+
+
 def render_user(user):
     html = ''
     html += f"<a href='/{user['screen_name']}'>"
@@ -26,15 +33,14 @@ def render_tweet(tweet, user, views=None, is_pinned=False):
     if 'retweeted_status_result' in tweet:
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
         tweet = tweet['retweeted_status_result']['result']['legacy']
-        text = tweet['full_text']
-    elif 'full_text' in tweet:
-        text = tweet['full_text']
-    else:
-        text = tweet['text']
+
+    text = tweet.get('full_text', tweet.get('text'))
+    text = extend_urls(text, tweet['entities'])
     html += '<p>' + text + '</p>'
 
     try:
         for media in tweet['extended_entities']['media']:
+            html = html.replace(media['url'], '')
             url = media['media_url_https']
             if media['type'] in ('video', 'animated_gif'):
                 html += f"<video poster='{url}' style='max-height:512px;max-width:100%' "
@@ -136,7 +142,8 @@ def render_user_header(user):
     html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     html += f"<title>{user['name']} (@{username}) - yitter</title>"
     html += render_user(user)
-    html += '<p>' + user['description'] + '</p>'
+    description = extend_urls(user['description'], user['entities']['description'])
+    html += '<p>' + description + '</p>'
     html += f'<a href="/{username}">Home</a> <a href="/{username}/favorites">Likes</a>'
     html += '</div>'
     return html
