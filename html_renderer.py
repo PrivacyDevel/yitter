@@ -11,10 +11,12 @@ def extend_urls(text, urls_container):
 
 def render_user(user):
     html = ''
-    html += f"<a href='/{user['screen_name']}'>"
+    html += f"<a href='/{user['screen_name']}' class=icon-container>"
     html += f"<img src='{user['profile_image_url_https']}'>"
+    html += '<div style="display:inline;margin-left:5px">'
+    html += f"<h2 style='margin:0px'>{user['name']}</h2>"
     html += '@' + user['screen_name']
-    html += '<h2>' + user['name'] + '</h2>'
+    html += '</div>'
     html += '</a>'
     return html
 
