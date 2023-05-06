@@ -21,7 +21,7 @@ def render_user(user):
     html += '</a>'
     return html
 
-def render_tweet(tweet, user, views=None, is_pinned=False):
+def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
     tweet_link = f"/{user['screen_name']}/status/{tweet['id_str']}"
 
@@ -37,7 +37,10 @@ def render_tweet(tweet, user, views=None, is_pinned=False):
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
         tweet = tweet['retweeted_status_result']['result']['legacy']
 
-    text = tweet.get('full_text', tweet.get('text'))
+    if graph_tweet is not None:
+        text = graph_tweet['note_tweet']['note_tweet_results']['result']['text']
+    else:
+        text = tweet.get('full_text', tweet.get('text'))
     text = extend_urls(text, tweet['entities'])
     html += '<p>' + text + '</p>'
 
@@ -72,8 +75,11 @@ def render_tweet(tweet, user, views=None, is_pinned=False):
     html += f"<img src='/static/repeat-variant.svg' class=icon>{tweet['retweet_count']}"
     html += f"<img src='/static/thumb-up.svg' class=icon>{tweet['favorite_count']}"
 
-    if views is not None:
-        html += f"<img src='/static/eye-outline.svg' class=icon>{views}"
+    try:
+        if graph_tweet is not None:
+            html += f"<img src='/static/eye-outline.svg' class=icon>{graph_tweet['views']['count']}"
+    except KeyError:
+        pass
 
     html += '</a>'
     html += '</div>'
@@ -82,17 +88,10 @@ def render_tweet(tweet, user, views=None, is_pinned=False):
 
 
 def render_graph_tweet(content, is_pinned):
-    result = content['itemContent']['tweet_results']['result']
-    tweet = result['legacy']
-    user = result['core']['user_results']['result']['legacy']
-    
-    views = None
-    try:
-        views = result['views']['count']
-    except KeyError:
-        pass
-
-    return render_tweet(tweet, user, views, is_pinned)
+    graph_tweet = content['itemContent']['tweet_results']['result']
+    tweet = graph_tweet['legacy']
+    user = graph_tweet['core']['user_results']['result']['legacy']
+    return render_tweet(tweet, user, graph_tweet, is_pinned)
 
 def render_load_more(content, params):
     params['cursor'] = content['value']
