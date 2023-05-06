@@ -37,7 +37,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
         html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
         tweet = tweet['retweeted_status_result']['result']['legacy']
 
-    if graph_tweet is not None:
+    if graph_tweet is not None and 'note_tweet' in graph_tweet:
         text = graph_tweet['note_tweet']['note_tweet_results']['result']['text']
     else:
         text = tweet.get('full_text', tweet.get('text'))
