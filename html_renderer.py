@@ -34,8 +34,12 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
     html += f"<p>{tweet['created_at']}</p></a>"
     html += render_user(user)
     if 'retweeted_status_result' in tweet:
-        html += render_user(tweet['retweeted_status_result']['result']['core']['user_results']['result']['legacy'])
-        tweet = tweet['retweeted_status_result']['result']['legacy']
+        tweet = tweet['retweeted_status_result']['result']
+        if 'tweet' in tweet:
+            tweet = tweet['tweet']
+
+        html += render_user(tweet['core']['user_results']['result']['legacy'])
+        tweet = tweet['legacy']
 
     if graph_tweet is not None and 'note_tweet' in graph_tweet:
         text = graph_tweet['note_tweet']['note_tweet_results']['result']['text']
@@ -89,8 +93,16 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
 def render_graph_tweet(content, is_pinned):
     graph_tweet = content['itemContent']['tweet_results']['result']
+
+    if 'tweet' in graph_tweet:
+        graph_tweet = graph_tweet['tweet']
     tweet = graph_tweet['legacy']
-    user = graph_tweet['core']['user_results']['result']['legacy']
+
+    user = graph_tweet['core']['user_results']['result']
+    if 'tweet' in user:
+        user = user['tweet']
+    user = user['legacy']
+
     return render_tweet(tweet, user, graph_tweet, is_pinned)
 
 def render_load_more(content, params):
