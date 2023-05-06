@@ -78,5 +78,15 @@ def get_tweet(tweet_id, username, cursor=None):
     return request_func(api_graph.tweet_detail(tweet_id, cursor)).json()
 
 @redis_decorator.cache(ttl_secs=60*60)
-def search(query):
-    return request_as_user(api_2.search(query)).json()
+def search(query, cursor=None):
+    try:
+        return {
+            'search': request_as_user(api_graph.search(query, cursor)).json(),
+            'version': 'graphql'
+        }
+    except httpx.HTTPStatusError:
+        #TODO implement cursor
+        return {
+            'search': request_as_user(api_2.search(query)).json(),
+            'version': '2'
+        }

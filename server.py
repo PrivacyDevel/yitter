@@ -14,7 +14,7 @@ def user(username):
     user = api.get_user(username)
     html += html_renderer.render_user_header(user)
     tweets = api.get_user_tweets(username, bottle.request.params.get('cursor'))
-    html += html_renderer.render_instructions(tweets['data']['user']['result']['timeline_v2']['timeline'])
+    html += html_renderer.render_instructions(tweets['data']['user']['result']['timeline']['timeline'])
     return html
 
 @bottle.get('/<username>/favorites')
@@ -33,7 +33,7 @@ def tweet(username, tweet_id):
     html += '<title>yitter</title>'
     html += html_renderer.render_top()
     tweet = api.get_tweet(tweet_id, username, bottle.request.params.get('cursor'))
-    html += html_renderer.render_instructions(tweet['data']['threaded_conversation_with_injections_v2'])
+    html += html_renderer.render_instructions(tweet['data']['threaded_conversation_with_injections'])
     return html
 
 @bottle.get('/static/<file>')
@@ -46,9 +46,12 @@ def search():
     query = bottle.request.params.get('q')
     html += f'<title>"{query}" search - yitter</title>'
     html += html_renderer.render_top()
-    search = api.search(query)
-    for tweet in search['globalObjects']['tweets'].values():
-        html += html_renderer.render_tweet(tweet, search['globalObjects']['users'][tweet['user_id_str']])
+    search = api.search(query, bottle.request.params.get('cursor'))
+    if search['version'] == 'graphql':
+        html += html_renderer.render_instructions(search['search']['data']['search_by_raw_query']['search_timeline']['timeline'], {'q': query})
+    else:
+        for tweet in search['globalObjects']['tweets'].values():
+            html += html_renderer.render_tweet(tweet, search['search']['globalObjects']['users'][tweet['user_id_str']])
     return html
 
 @bottle.get('/')

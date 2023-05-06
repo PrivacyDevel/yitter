@@ -1,4 +1,5 @@
 import traceback
+import urllib.parse
 
 accent_color = 'darkgreen'
 
@@ -93,11 +94,13 @@ def render_graph_tweet(content, is_pinned):
 
     return render_tweet(tweet, user, views, is_pinned)
 
-def render_load_more(content):
-    return f"<a href='?cursor={content['value']}'>load more</a>"
+def render_load_more(content, params):
+    params['cursor'] = content['value']
+    href = urllib.parse.urlencode(params)
+    return f"<a href='?{href}'>load more</a>"
 
 
-def render_instruction(entry, is_pinned=False):
+def render_instruction(entry, params, is_pinned=False):
     html = ''
     content = entry['content']
     if 'itemContent' in content:
@@ -106,7 +109,7 @@ def render_instruction(entry, is_pinned=False):
             html += render_graph_tweet(content, is_pinned)
         else:
             try:
-                html += render_load_more(itemContent)
+                html += render_load_more(itemContent, params)
             except KeyError:
                 traceback.print_exc()
     if 'items' in content:
@@ -119,23 +122,27 @@ def render_instruction(entry, is_pinned=False):
                 traceback.print_exc()
         html += '</div>'
     if 'value' in content:
-        html += render_load_more(content)
+        html += render_load_more(content, params)
 
     return html
 
-def render_instructions(timeline):
+def render_instructions(timeline, params=None):
+
+    if params is None:
+        params = {}
+
     html = ''
 
     for instruction in timeline['instructions']:
         if 'entry' in instruction and instruction['type'] == 'TimelinePinEntry':
-            html += render_instruction(instruction['entry'], True)
+            html += render_instruction(instruction['entry'], params, True)
 
     for instruction in timeline['instructions']:
         if 'entries' in instruction:
             for entry in instruction['entries']:
-                html += render_instruction(entry)
+                html += render_instruction(entry, params)
         if 'entry' in instruction and instruction['type'] != 'TimelinePinEntry':
-            html += render_instruction(instruction['entry'])
+            html += render_instruction(instruction['entry'], params)
     return html
 
 def render_user_header(user):

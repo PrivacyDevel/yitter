@@ -54,11 +54,7 @@ def likes(user_id, cursor=None, count=20):
         "longform_notetweets_richtext_consumption_enabled": False,
     }
 
-    headers = {
-        "content-type": "application/json",
-    }
-
-    return {"url": base_url + "fN4-E0MjFJ9Cn7IYConL7g/Likes", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
+    return {"url": base_url + "fN4-E0MjFJ9Cn7IYConL7g/Likes", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}}
 
 def user_tweets(user_id, cursor=None, count=40):
 
@@ -66,8 +62,6 @@ def user_tweets(user_id, cursor=None, count=40):
         "userId" : user_id,
         "count" : count,
         "includePromotedContent" : True,
-        "withQuickPromoteEligibilityTweetFields" : True,
-        "withV2Timeline" : True,
         "withVoice" : True
     }
 
@@ -78,23 +72,15 @@ def user_tweets(user_id, cursor=None, count=40):
         "longform_notetweets_rich_text_read_enabled" : True,
     }
 
-    headers = {
-        "content-type": "application/json",
-    }
-
-    return {"url": base_url + "CdG2Vuc1v6F5JyEngGpxVw/UserTweets", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
+    return {"url": base_url + "CdG2Vuc1v6F5JyEngGpxVw/UserTweets", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}}
     
 def tweet_detail(tweet_id, cursor=None):
 
     variables = {
             "focalTweetId": tweet_id,
-            "with_rux_injections": False,
             "includePromotedContent": True,
-            "withCommunity": True,
-            "withQuickPromoteEligibilityTweetFields": True,
             "withBirdwatchNotes": False,
             "withVoice": True,
-            "withV2Timeline": True
     }
 
     if cursor is not None:
@@ -104,9 +90,21 @@ def tweet_detail(tweet_id, cursor=None):
         "longform_notetweets_rich_text_read_enabled": True
     }
 
-    headers = {
-        "content-type": "application/json",
+    return {"url": base_url + "BbCrSoXIR7z93lLCVFlQ2Q/TweetDetail", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}}
+
+def search(query, cursor=None, count=20):
+
+    variables = {
+        "rawQuery": query,
+        "count": count, # optional
+        "product": "Latest",
     }
 
-    return {"url": base_url + "BbCrSoXIR7z93lLCVFlQ2Q/TweetDetail", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}, "headers": headers}
+    if cursor is not None:
+        variables['cursor'] = cursor
 
+    features = gen_features_base_ext() | {
+        "longform_notetweets_rich_text_read_enabled": True,
+    }
+
+    return {"url": base_url + "gkjsKepM6gl_HmFWoWKfgg/SearchTimeline", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}}
