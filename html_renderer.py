@@ -159,7 +159,12 @@ def render_instructions(timeline, params=None):
 def render_user_header(user):
     user = user['data']['user']['result']['legacy']
     username = user['screen_name']
-    html = '<div style="background:#111111;padding:20px;margin-bottom:20px">'
+    html = ''
+
+    if 'profile_banner_url' in user:
+        html += f"<a href='{user['profile_banner_url']}'><img src='{user['profile_banner_url']}' style='max-width:100%'></a>"
+
+    html += '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     html += f"<title>{user['name']} (@{username}) - yitter</title>"
     html += render_user(user)
     description = extend_urls(user['description'], user['entities']['description'])
