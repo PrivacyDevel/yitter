@@ -23,9 +23,21 @@ def render_user(user):
 
 def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
-    tweet_link = f"/{user['screen_name']}/status/{tweet['id_str']}"
-
     html = '<div style="background:#111111;padding:20px;margin-bottom:10px;padding-top:5px">'
+
+    if 'retweeted_status_result' in tweet:
+        graph_retweeted = tweet['retweeted_status_result']['result']
+        if 'tweet' in graph_retweeted:
+            graph_retweeted = graph_retweeted['tweet']
+        retweeted = graph_retweeted['legacy']
+
+        retweeted_user = graph_retweeted['core']['user_results']['result']['legacy']
+
+        tweet_link = f"/{retweeted_user['screen_name']}/status/{retweeted['id_str']}"
+    else:
+        retweeted = None
+        tweet_link = f"/{user['screen_name']}/status/{tweet['id_str']}"
+
     html += f"<a href='{tweet_link}'>"
 
     if is_pinned:
@@ -33,13 +45,10 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
     html += f"<p>{tweet['created_at']}</p></a>"
     html += render_user(user)
-    if 'retweeted_status_result' in tweet:
-        tweet = tweet['retweeted_status_result']['result']
-        if 'tweet' in tweet:
-            tweet = tweet['tweet']
-
-        html += render_user(tweet['core']['user_results']['result']['legacy'])
-        tweet = tweet['legacy']
+    if retweeted is not None:
+        html += render_tweet(retweeted, retweeted_user, graph_retweeted)
+        html += '</div>'
+        return html
 
     if graph_tweet is not None and 'note_tweet' in graph_tweet:
         text = graph_tweet['note_tweet']['note_tweet_results']['result']['text']
@@ -67,7 +76,6 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
     except KeyError:
         pass
-
 
     html += f"<a href='{tweet_link}' class=icon-container>"
 
