@@ -133,7 +133,9 @@ def render_instruction(entry, params, is_pinned=False):
                 traceback.print_exc()
     if 'items' in content:
         html += '<div style="position:relative">'
-        html += f"<div style='position:absolute;height:100%;width:5px;background:{accent_color}'></div>"
+        if len(content['items']) > 1:
+            html += f"<div style='position:absolute;height:100%;width:5px;background:{accent_color}'></div>"
+
         for item in content['items']:
             try:
                 html += render_graph_tweet(item['item'], is_pinned)
