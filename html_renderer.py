@@ -1,12 +1,14 @@
 import traceback
 import urllib.parse
+import re
 
 accent_color = 'darkgreen'
 
 
-def extend_urls(text, urls_container):
+def extend_text(text, urls_container):
     for url in urls_container['urls']:
         text = text.replace(url['url'], f"<a href='{url['expanded_url']}'>{url['expanded_url']}</a>")
+    text = re.sub(r'@(\S+)', r'<a href="/\1">@\1</a>', text)
     return text
 
 
@@ -54,7 +56,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
         text = graph_tweet['note_tweet']['note_tweet_results']['result']['text']
     else:
         text = tweet.get('full_text', tweet.get('text'))
-    text = extend_urls(text, tweet['entities'])
+    text = extend_text(text, tweet['entities'])
     html += '<p>' + text + '</p>'
 
     try:
@@ -184,7 +186,7 @@ def render_user_header(user):
     html += '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     html += f"<title>{user['name']} (@{username}) - yitter</title>"
     html += render_user(user)
-    description = extend_urls(user['description'], user['entities']['description'])
+    description = extend_text(user['description'], user['entities']['description'])
     html += '<p>' + description + '</p>'
     html += f'<a href="/{username}">Home</a> <a href="/{username}/favorites">Likes</a>'
     html += '</div>'
