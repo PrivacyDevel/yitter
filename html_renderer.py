@@ -90,6 +90,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
     except KeyError:
         pass
 
+    html += f"<img src='/static/format-quote-close.svg' class=icon>{tweet['quote_count']}"
     html += f"<img src='/static/repeat-variant.svg' class=icon>{tweet['retweet_count']}"
     html += f"<img src='/static/thumb-up.svg' class=icon>{tweet['favorite_count']}"
 
