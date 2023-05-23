@@ -77,6 +77,12 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
     except KeyError:
         pass
 
+    if graph_tweet is not None and 'quoted_status_result' in graph_tweet:
+        quoted_tweet_graph = graph_tweet['quoted_status_result']['result']
+        quoted_tweet = quoted_tweet_graph['legacy']
+        quoted_tweet_user = quoted_tweet_graph['core']['user_results']['result']['legacy']
+        html += render_tweet(quoted_tweet, user, quoted_tweet_graph)
+
     html += f"<a href='{tweet_link}' class=icon-container>"
 
     try:
