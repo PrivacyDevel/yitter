@@ -83,6 +83,10 @@ def get_favoriters(tweet_id, cursor=None):
     return request_as_user(api_graph.favoriters(tweet_id, cursor)).json()
 
 @redis_decorator.cache(ttl_secs=60*60)
+def get_retweeters(tweet_id, cursor=None):
+    return request_as_user(api_graph.retweeters(tweet_id, cursor)).json()
+
+@redis_decorator.cache(ttl_secs=60*60)
 def search(query, cursor=None):
     try:
         return {

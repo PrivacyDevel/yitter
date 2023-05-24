@@ -93,6 +93,9 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
         pass
 
     html += f"<img src='/static/format-quote-close.svg' class=icon>{tweet['quote_count']}"
+    html += '</a>'
+
+    html += f'<a href="{tweet_link}/retweeters" class=icon-container style="float:left">'
     html += f"<img src='/static/repeat-variant.svg' class=icon>{tweet['retweet_count']}"
     html += '</a>'
 

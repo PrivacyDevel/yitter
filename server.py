@@ -73,4 +73,13 @@ def favoriters(username, tweet_id):
     return html
 
 
+@bottle.get('/<username>/status/<tweet_id>/retweeters')
+def retweeters(username, tweet_id):
+    html = ''
+    html += '<title>yitter</title>'
+    html += html_renderer.render_top()
+    retweeters = api.get_retweeters(tweet_id, bottle.request.params.get('cursor'))
+    html += html_renderer.render_instructions(retweeters['data']['retweeters_timeline']['timeline'])
+    return html
+
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)
