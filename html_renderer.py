@@ -8,7 +8,7 @@ accent_color = 'darkgreen'
 def extend_text(text, urls_container):
     for url in urls_container['urls']:
         text = text.replace(url['url'], f"<a href='{url['expanded_url']}'>{url['expanded_url']}</a>")
-    text = re.sub(r'@(\S+)', r'<a href="/\1">@\1</a>', text)
+    text = re.sub(r'@([a-zA-Z0-9_]+)', r'<a href="/\1">@\1</a>', text)
     return text
 
 
