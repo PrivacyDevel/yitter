@@ -25,7 +25,7 @@ def render_user(user):
 
 def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
-    html = '<div style="background:#111111;padding:20px;margin-bottom:10px;padding-top:5px">'
+    html = '<div style="background:#111111;padding:20px;padding-bottom:45px;margin-bottom:10px;padding-top:5px">'
 
     if 'retweeted_status_result' in tweet:
         graph_retweeted = tweet['retweeted_status_result']['result']
@@ -64,7 +64,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
             html = html.replace(media['url'], '')
             url = media['media_url_https']
             if media['type'] in ('video', 'animated_gif'):
-                html += f"<video poster='{url}' style='max-height:512px;max-width:100%' "
+                html += f"<video poster='{url}' style='max-height:512px;max-width:100%;display:block' "
                 if media['type'] == 'video':
                     html += 'controls'
                 else:
@@ -74,7 +74,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
                     html += f"<source src='{variant['url']}' type='{variant['content_type']}'>"
                 html += '</video>'
             else:
-                html += f'<a href="{url}"><img src="{url}" style="max-height:512px;max-width:100%"></a>'
+                html += f'<a href="{url}"><img src="{url}" style="max-height:512px;max-width:100%;display:block"></a>'
 
     except KeyError:
         pass
@@ -85,7 +85,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
         quoted_tweet_user = quoted_tweet_graph['core']['user_results']['result']['legacy']
         html += render_tweet(quoted_tweet, user, quoted_tweet_graph)
 
-    html += f"<a href='{tweet_link}' class=icon-container>"
+    html += f'<a href="{tweet_link}" class=icon-container style="float:left">'
 
     try:
         html += f"<img src='/static/message-reply.svg' class=icon>{tweet['reply_count']}"
@@ -94,7 +94,14 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
 
     html += f"<img src='/static/format-quote-close.svg' class=icon>{tweet['quote_count']}"
     html += f"<img src='/static/repeat-variant.svg' class=icon>{tweet['retweet_count']}"
+    html += '</a>'
+
+    html += f'<a href="{tweet_link}/favoriters" class=icon-container style="float:left">'
     html += f"<img src='/static/thumb-up.svg' class=icon>{tweet['favorite_count']}"
+    html += '</a>'
+
+
+    html += f'<a href="{tweet_link}" class=icon-container style="float:left">'
 
     try:
         if graph_tweet is not None:
@@ -135,6 +142,11 @@ def render_instruction(entry, params, is_pinned=False):
         itemContent = content['itemContent']
         if 'tweet_results' in itemContent:
             html += render_graph_tweet(content, is_pinned)
+        elif 'user_results' in itemContent:
+            try:
+                html += render_user_card(itemContent['user_results']['result']['legacy'])
+            except KeyError:
+                traceback.print_exc()
         else:
             try:
                 html += render_load_more(itemContent, params)
@@ -175,14 +187,9 @@ def render_instructions(timeline, params=None):
             html += render_instruction(instruction['entry'], params)
     return html
 
-def render_user_header(user):
-    user = user['data']['user']['result']['legacy']
+def render_user_card(user):
     username = user['screen_name']
     html = ''
-
-    if 'profile_banner_url' in user:
-        html += f"<a href='{user['profile_banner_url']}'><img src='{user['profile_banner_url']}' style='max-width:100%'></a>"
-
     html += '<div style="background:#111111;padding:20px;margin-bottom:20px">'
     html += f"<title>{user['name']} (@{username}) - yitter</title>"
     html += render_user(user)
@@ -192,8 +199,20 @@ def render_user_header(user):
     html += '</div>'
     return html
 
+
+def render_user_header(user):
+    user = user['data']['user']['result']['legacy']
+    username = user['screen_name']
+    html = ''
+
+    if 'profile_banner_url' in user:
+        html += f"<a href='{user['profile_banner_url']}'><img src='{user['profile_banner_url']}' style='max-width:100%'></a>"
+
+    html += render_user_card(user)
+    return html
+
 def render_top():
-    html = '<style>body{background:black;color:white}a{color:' + accent_color + ';text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}.icon-container{display:flex;margin-top:10px;align-items:center;transform:translateX(-10px)}</style>'
+    html = '<style>body{background:black;color:white}a{color:' + accent_color + ';text-decoration:none}.icon{height:24px;filter:invert(100%);margin-right:5px;margin-left:10px}.icon-container{display:inline-flex;margin-top:10px;align-items:center;transform:translateX(-10px)}</style>'
     html += '<link rel="icon" href="/static/head.webp">'
     html += '<div style="margin:auto;width:50%">'
     html += '<div style="display:flex">'

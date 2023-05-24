@@ -108,3 +108,23 @@ def search(query, cursor=None, count=20):
     }
 
     return {"url": base_url + "gkjsKepM6gl_HmFWoWKfgg/SearchTimeline", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}}
+
+def favoriters(tweet_id, cursor=None, count=20):
+
+    variables = {
+        "tweetId" : tweet_id,
+        "count" : count,
+        "includePromotedContent": False, # no effect found
+    }
+
+    if cursor is not None:
+        variables['cursor'] = cursor
+
+    features = gen_features_base_ext() | {
+        "longform_notetweets_rich_text_read_enabled": True, #TODO consider implementing. Example tweet id: 1649150616063602693
+        "rweb_lists_timeline_redesign_enabled": False, # no effect found
+        "creator_subscriptions_tweet_preview_api_enabled": False, # no effect found
+        "longform_notetweets_inline_media_enabled": True # no effect found
+    }
+
+    return {"url": base_url + "mDc_nU8xGv0cLRWtTaIEug/Favoriters", "params": {"variables": json.dumps(variables), "features": json.dumps(features)}}

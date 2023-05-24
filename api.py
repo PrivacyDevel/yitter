@@ -77,6 +77,11 @@ def get_tweet(tweet_id, username, cursor=None):
     request_func = get_appropriate_request_func(username)
     return request_func(api_graph.tweet_detail(tweet_id, cursor)).json()
 
+
+@redis_decorator.cache(ttl_secs=60*60)
+def get_favoriters(tweet_id, cursor=None):
+    return request_as_user(api_graph.favoriters(tweet_id, cursor)).json()
+
 @redis_decorator.cache(ttl_secs=60*60)
 def search(query, cursor=None):
     try:

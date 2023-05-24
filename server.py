@@ -63,4 +63,14 @@ def landing():
     html += html_renderer.render_top()
     return html
 
+@bottle.get('/<username>/status/<tweet_id>/favoriters')
+def favoriters(username, tweet_id):
+    html = ''
+    html += '<title>yitter</title>'
+    html += html_renderer.render_top()
+    likers = api.get_favoriters(tweet_id, bottle.request.params.get('cursor'))
+    html += html_renderer.render_instructions(likers['data']['favoriters_timeline']['timeline'])
+    return html
+
+
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)
