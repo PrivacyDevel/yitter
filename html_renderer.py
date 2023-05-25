@@ -86,12 +86,13 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
         html += render_tweet(quoted_tweet, user, quoted_tweet_graph)
 
     html += f'<a href="{tweet_link}" class=icon-container style="float:left">'
-
     try:
         html += f"<img src='/static/message-reply.svg' class=icon>{tweet['reply_count']}"
     except KeyError:
         pass
+    html += '</a>'
 
+    html += f'<a href="search?q=quoted_tweet_id:{tweet["id_str"]}" class=icon-container style="float:left">'
     html += f"<img src='/static/format-quote-close.svg' class=icon>{tweet['quote_count']}"
     html += '</a>'
 
