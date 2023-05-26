@@ -92,7 +92,7 @@ def render_tweet(tweet, user, graph_tweet=None, is_pinned=False):
         pass
     html += '</a>'
 
-    html += f'<a href="search?q=quoted_tweet_id:{tweet["id_str"]}" class=icon-container style="float:left">'
+    html += f'<a href="/search?q=quoted_tweet_id:{tweet["id_str"]}" class=icon-container style="float:left">'
     html += f"<img src='/static/format-quote-close.svg' class=icon>{tweet['quote_count']}"
     html += '</a>'
 
