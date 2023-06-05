@@ -199,6 +199,12 @@ def render_user_card(user):
     html += render_user(user)
     description = extend_text(user['description'], user['entities']['description'])
     html += '<p>' + description + '</p>'
+
+    html += '<p>'
+    html += f'<a href="/{username}/following">Following: {user["friends_count"]}</a> '
+    html += f'<a href="/{username}/followers">Followers: {user["followers_count"]}</a>'
+    html += '</p>'
+
     html += f'<a href="/{username}">Home</a> <a href="/{username}/favorites">Likes</a>'
     html += '</div>'
     return html

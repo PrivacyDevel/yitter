@@ -82,4 +82,22 @@ def retweeters(username, tweet_id):
     html += html_renderer.render_instructions(retweeters['data']['retweeters_timeline']['timeline'])
     return html
 
+@bottle.get('/<username>/followers')
+def followers(username):
+    html = ''
+    html += '<title>yitter</title>'
+    html += html_renderer.render_top()
+    followers = api.get_followers(api.get_user_id(username), bottle.request.params.get('cursor'))
+    html += html_renderer.render_instructions(followers['data']['user']['result']['timeline']['timeline'])
+    return html
+
+@bottle.get('/<username>/following')
+def followers(username):
+    html = ''
+    html += '<title>yitter</title>'
+    html += html_renderer.render_top()
+    following = api.get_following(api.get_user_id(username), bottle.request.params.get('cursor'))
+    html += html_renderer.render_instructions(following['data']['user']['result']['timeline']['timeline'])
+    return html
+
 bottle.run(server=config.SERVER, port=config.BIND_PORT, host=config.BIND_ADDRESS)

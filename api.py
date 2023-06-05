@@ -49,7 +49,7 @@ def request_as_user(params):
         return resp
 
 
-@redis_decorator.cache(ttl_secs=60*60*24)
+@redis_decorator.cache(ttl_secs=60*60)
 def get_user(username):
     return request_as_guest(api_graph.user_by_screen_name(username)).json()
 
@@ -85,6 +85,14 @@ def get_favoriters(tweet_id, cursor=None):
 @redis_decorator.cache(ttl_secs=60*60)
 def get_retweeters(tweet_id, cursor=None):
     return request_as_user(api_graph.retweeters(tweet_id, cursor)).json()
+
+@redis_decorator.cache(ttl_secs=60*60)
+def get_followers(user_id, cursor=None):
+    return request_as_user(api_graph.followers(user_id, cursor)).json()
+
+@redis_decorator.cache(ttl_secs=60*60)
+def get_following(user_id, cursor=None):
+    return request_as_user(api_graph.following(user_id, cursor)).json()
 
 @redis_decorator.cache(ttl_secs=60*60)
 def search(query, cursor=None):
